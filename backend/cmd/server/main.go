@@ -46,10 +46,11 @@ func main() {
 	hub := ws.NewHub()
 	auth := service.NewAuthService(cfg.JWTSecret)
 	monitoring := service.NewMonitoringService(greenhouses, sensors, alerts, l, hub)
+	calibration := service.NewCalibrationService(sensors, l, hub)
 	control := service.NewControlService(devices, l, hub)
 	alertService := service.NewAlertService(alerts, l)
 	reports := service.NewReportService(sensors, alerts)
-	engine := router.New(router.Dependencies{Config: cfg, Logger: l, Auth: auth, Monitoring: monitoring, Alerts: alertService, Control: control, Reports: reports, Hub: hub})
+	engine := router.New(router.Dependencies{Config: cfg, Logger: l, Auth: auth, Monitoring: monitoring, Calibration: calibration, Alerts: alertService, Control: control, Reports: reports, Hub: hub})
 	l.Info("server started", "port", cfg.ServerPort)
 	if err := engine.Run(fmt.Sprintf(":%d", cfg.ServerPort)); err != nil {
 		log.Fatal(err)

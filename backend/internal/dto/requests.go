@@ -24,6 +24,10 @@ type ThresholdRequest struct {
 	MinValue float64 `json:"minValue"`
 	MaxValue float64 `json:"maxValue" validate:"gt=0"`
 }
+type CalibrationRequest struct {
+	// Offset 使用指针以便区分“未填写”和“填写了 0（恢复原值）”。
+	Offset *float64 `json:"offset" validate:"required"`
+}
 type DeviceToggleRequest struct {
 	Status string `json:"status" validate:"required,oneof=on off"`
 }

@@ -13,14 +13,15 @@ import (
 )
 
 type Dependencies struct {
-	Config     config.Config
-	Logger     *slog.Logger
-	Auth       *service.AuthService
-	Monitoring *service.MonitoringService
-	Alerts     *service.AlertService
-	Control    *service.ControlService
-	Reports    *service.ReportService
-	Hub        *ws.Hub
+	Config      config.Config
+	Logger      *slog.Logger
+	Auth        *service.AuthService
+	Monitoring  *service.MonitoringService
+	Calibration *service.CalibrationService
+	Alerts      *service.AlertService
+	Control     *service.ControlService
+	Reports     *service.ReportService
+	Hub         *ws.Hub
 }
 
 func New(d Dependencies) *gin.Engine {
@@ -31,6 +32,7 @@ func New(d Dependencies) *gin.Engine {
 	greenhouse := handler.NewGreenhouseHandler(d.Monitoring, v)
 	sensors := handler.NewSensorHandler(d.Monitoring, v)
 	monitoring := handler.NewMonitoringHandler(d.Monitoring, v)
+	calibration := handler.NewCalibrationHandler(d.Calibration, v)
 	alerts := handler.NewAlertHandler(d.Alerts)
 	devices := handler.NewDeviceHandler(d.Control, v)
 	reports := handler.NewReportHandler(d.Reports)
@@ -52,6 +54,7 @@ func New(d Dependencies) *gin.Engine {
 	secured.POST("/readings", monitoring.Ingest)
 	secured.POST("/greenhouses/:id/simulate", monitoring.Simulate)
 	secured.PUT("/sensors/:id/threshold", monitoring.Threshold)
+	secured.PUT("/sensors/:id/calibration", calibration.Update)
 	secured.PATCH("/alerts/:id/handle", alerts.Handle)
 	secured.PATCH("/devices/:id/toggle", devices.Toggle)
 	secured.POST("/schedules", devices.Schedule)

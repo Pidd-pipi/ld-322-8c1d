@@ -1,2 +1,11 @@
 -- Schema is managed by GORM AutoMigrate on application startup.
 -- This file documents the initial migration boundary for DBAs.
+
+-- 变更记录（均由 GORM AutoMigrate 自动执行）：
+-- 002: sensors 表新增 calibration_offset DOUBLE NOT NULL DEFAULT 0
+--      每个传感器的校准偏移；读数表 sensor_readings 不做任何改动，
+--      原始读数永久保留，校准值 = 原始读数 + calibration_offset，
+--      偏移调回 0 即恢复原值。
+--      允许范围（按传感器类型，后端 constants.MaxCalibrationOffset 强制）：
+--        temperature ±5°C / humidity ±10% / light ±5000lux /
+--        co2 ±200ppm / soil_moisture ±10%

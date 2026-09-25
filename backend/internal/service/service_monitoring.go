@@ -33,17 +33,22 @@ func (s *MonitoringService) Ingest(sensorID uint, value float64) (*model.SensorR
 	if err != nil {
 		return nil, nil, err
 	}
-	reading := &model.SensorReading{SensorID: sensorID, Value: value, RecordedAt: time.Now()}
+	calibrated := CalibratedValue(value, sensor.CalibrationOffset)
+	reading := &model.SensorReading{SensorID: sensorID, Value: value, RecordedAt: time.Now(), CalibratedValue: calibrated}
 	if err = s.sensorRepo.AddReading(reading); err != nil {
 		return nil, nil, err
 	}
 	var alert *model.Alert
-	if value < sensor.Threshold.MinValue || value > sensor.Threshold.MaxValue {
+	if calibrated < sensor.Threshold.MinValue || calibrated > sensor.Threshold.MaxValue {
 		level := "warning"
-		if value < sensor.Threshold.MinValue*.8 || value > sensor.Threshold.MaxValue*1.2 {
+		if calibrated < sensor.Threshold.MinValue*.8 || calibrated > sensor.Threshold.MaxValue*1.2 {
 			level = "critical"
 		}
-		alert = &model.Alert{GreenhouseID: sensor.GreenhouseID, SensorID: sensor.ID, Level: level, Message: fmt.Sprintf("%s 当前值 %.2f%s 超出阈值 [%.2f, %.2f]", constants.SensorLabels[sensor.Type], value, sensor.Unit, sensor.Threshold.MinValue, sensor.Threshold.MaxValue), Value: value, Status: constants.AlertPending}
+		message := fmt.Sprintf("%s 校准值 %.2f%s 超出阈值 [%.2f, %.2f]", constants.SensorLabels[sensor.Type], calibrated, sensor.Unit, sensor.Threshold.MinValue, sensor.Threshold.MaxValue)
+		if sensor.CalibrationOffset != 0 {
+			message += fmt.Sprintf("（原始读数 %.2f%s）", value, sensor.Unit)
+		}
+		alert = &model.Alert{GreenhouseID: sensor.GreenhouseID, SensorID: sensor.ID, Level: level, Message: message, Value: calibrated, Status: constants.AlertPending}
 		if err = s.alertRepo.Create(alert); err != nil {
 			return nil, nil, err
 		}
@@ -53,10 +58,20 @@ func (s *MonitoringService) Ingest(sensorID uint, value float64) (*model.SensorR
 	return reading, alert, nil
 }
 func (s *MonitoringService) History(greenhouseID uint, types []string, start, end time.Time) ([]model.SensorReading, error) {
-	return s.sensorRepo.History(greenhouseID, types, start, end)
+	rows, err := s.sensorRepo.History(greenhouseID, types, start, end)
+	if err != nil {
+		return nil, err
+	}
+	ApplyCalibration(rows)
+	return rows, nil
 }
 func (s *MonitoringService) Latest(greenhouseID uint) ([]model.SensorReading, error) {
-	return s.sensorRepo.LatestForGreenhouse(greenhouseID)
+	rows, err := s.sensorRepo.LatestForGreenhouse(greenhouseID)
+	if err != nil {
+		return nil, err
+	}
+	ApplyCalibration(rows)
+	return rows, nil
 }
 func (s *MonitoringService) UpdateThreshold(sensorID uint, min, max float64) (*model.Threshold, error) {
 	return s.sensorRepo.UpdateThreshold(sensorID, min, max)

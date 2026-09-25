@@ -30,7 +30,7 @@ export default function TrendChart({ readings, height = 300 }: Props) {
         data: rows
           .slice()
           .sort((a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime())
-          .map((row) => [new Date(row.recordedAt).getTime(), row.value]),
+          .map((row) => [new Date(row.recordedAt).getTime(), row.calibratedValue ?? row.value]),
       })),
     });
     const resize = () => chart.resize();

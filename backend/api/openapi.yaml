@@ -10,5 +10,32 @@ paths:
     get: {summary: List greenhouses, responses: {'200': {description: OK}}}
   /api/v1/readings:
     post: {summary: Ingest a sensor reading, responses: {'201': {description: Created}}}
+  /api/v1/sensors/{id}/calibration:
+    put:
+      summary: Save a sensor calibration offset (admin only)
+      description: >
+        Persists calibrationOffset on the sensor. Latest readings, history,
+        threshold alerts and environment reports all use value + offset;
+        raw readings are retained. Setting offset to 0 restores raw values.
+        Responds 401 without a token, 403 for non-admins, 404 when the
+        sensor does not exist and 40002 when the offset is outside the
+        allowed range for the sensor type.
+      parameters:
+        - {in: path, name: id, required: true, schema: {type: integer}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offset]
+              properties:
+                offset: {type: number, description: Additive calibration offset; 0 restores raw values}
+      responses:
+        '200': {description: OK}
+        '400': {description: Validation failed or offset out of allowed range}
+        '401': {description: Missing or invalid token}
+        '403': {description: Admin role required}
+        '404': {description: Sensor not found}
   /api/v1/alerts:
     get: {summary: List alerts, responses: {'200': {description: OK}}}

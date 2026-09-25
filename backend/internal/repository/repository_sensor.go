@@ -57,6 +57,19 @@ func (r *SensorRepository) UpdateThreshold(id uint, min, max float64) (*model.Th
 	}
 	return &t, nil
 }
+
+// UpdateCalibration 原子地把校准偏移写入单个传感器；更新失败时数据库保持原值。
+// 返回包含阈值的最新传感器实体，RowsAffected==0 表示传感器不存在。
+func (r *SensorRepository) UpdateCalibration(id uint, offset float64) (*model.Sensor, error) {
+	tx := r.db.Model(&model.Sensor{}).Where("id = ?", id).Update("calibration_offset", offset)
+	if tx.Error != nil {
+		return nil, fmt.Errorf("update calibration offset: %w", tx.Error)
+	}
+	if tx.RowsAffected == 0 {
+		return nil, apperrors.ErrRecordNotFound
+	}
+	return r.Get(id)
+}
 func (r *SensorRepository) History(greenhouseID uint, types []string, start, end time.Time) ([]model.SensorReading, error) {
 	q := r.db.Joins("JOIN sensors ON sensors.id = sensor_readings.sensor_id").Where("sensors.greenhouse_id = ? AND sensor_readings.recorded_at BETWEEN ? AND ?", greenhouseID, start, end).Preload("Sensor").Order("sensor_readings.recorded_at asc")
 	if len(types) > 0 {

@@ -37,17 +37,18 @@ func (s *ReportService) Generate(id uint, rangeName string, start, end time.Time
 	sums := map[string]float64{}
 	counts := map[string]int{}
 	for _, r := range rows {
+		value := CalibratedValue(r.Value, r.Sensor.CalibrationOffset)
 		m, ok := report.Metrics[r.Sensor.Type]
 		if !ok {
-			m = Metric{Min: r.Value, Max: r.Value, Unit: r.Sensor.Unit}
+			m = Metric{Min: value, Max: value, Unit: r.Sensor.Unit}
 		}
-		if r.Value < m.Min {
-			m.Min = r.Value
+		if value < m.Min {
+			m.Min = value
 		}
-		if r.Value > m.Max {
-			m.Max = r.Value
+		if value > m.Max {
+			m.Max = value
 		}
-		sums[r.Sensor.Type] += r.Value
+		sums[r.Sensor.Type] += value
 		counts[r.Sensor.Type]++
 		m.Average = sums[r.Sensor.Type] / float64(counts[r.Sensor.Type])
 		report.Metrics[r.Sensor.Type] = m

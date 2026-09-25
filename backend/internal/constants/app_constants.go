@@ -16,4 +16,8 @@ const (
 	SuccessMessage  = "ok"
 	EventAlert      = "alert.created"
 	EventDevice     = "device.updated"
+	// EventSensorCalibrated 校准偏移保存成功后广播，通知各终端刷新校准值。
+	EventSensorCalibrated = "sensor.calibrated"
+	// ContextClaims 是 JWT 声明在 gin.Context 中的键。
+	ContextClaims = "jwt_claims"
 )
