@@ -1,5 +1,6 @@
-import client from './client'; import type { Alert, ApiResponse, Device, EnvironmentReport, Reading } from '../types/domain';
+import client from './client'; import type { Alert, ApiResponse, Device, EnvironmentReport, Reading, Sensor } from '../types/domain';
 export const getLatest = async (id:number) => (await client.get<ApiResponse<Reading[]>>('/readings/latest',{params:{greenhouse_id:id}})).data.data;
+export const updateCalibration = async (sensorId:number,offset:number) => (await client.put<ApiResponse<Sensor>>(`/sensors/${sensorId}/calibration`,{offset})).data.data;
 export const getHistory = async (id:number,range:string,types?:string[]) => { const end=new Date(); const start=new Date(end.getTime()-(range==='week'?7:range==='month'?30:1)*86400000); return (await client.get<ApiResponse<Reading[]>>('/readings/history',{params:{greenhouse_id:id,start:start.toISOString(),end:end.toISOString(),types:types?.join(',')}})).data.data; };
 export const getAlerts = async (id?:number) => (await client.get<ApiResponse<Alert[]>>('/alerts',{params:id?{greenhouse_id:id}:{}})).data.data;
 export const handleAlert = async (id:number) => (await client.patch(`/alerts/${id}/handle`)).data.data;

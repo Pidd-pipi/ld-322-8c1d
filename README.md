@@ -35,6 +35,7 @@ docker compose down
 ## 主要功能
 
 - **多温室总览**：预置两个温室，卡片展示温度、湿度、光照、CO₂、土壤湿度的最新数值；30 秒自动刷新。
+- **传感器校准偏移**：管理员可在总览数值卡片上为每个传感器填写并保存校准偏移；保存后最新读数、历史趋势、阈值报警与环境报告均采用校准值，原始读数保留，偏移调回 0 即恢复原值。
 - **传感器采集与模拟**：通过 API 写入传感器读数；总览页可一键生成一轮演示采样。
 - **趋势与历史**：按温室和日/周/月范围查看 ECharts 折线趋势，支持图表缩放、平移及 CSV 导出。
 - **阈值报警**：每个传感器具备上下限；超限时持久化报警并通过 WebSocket 推送，支持标记为已处理。
@@ -86,6 +87,7 @@ npm run dev
 | GET | `/api/v1/readings/history?greenhouse_id=1` | 历史读数；可带 `start`、`end`、`types` |
 | POST | `/api/v1/greenhouses/:id/simulate` | 生成模拟读数 |
 | PUT | `/api/v1/sensors/:id/threshold` | 更新传感器上下限 |
+| PUT | `/api/v1/sensors/:id/calibration` | 保存传感器校准偏移（仅管理员；偏移超范围、传感器不存在会返回具体原因） |
 | GET / PATCH | `/api/v1/alerts`、`/api/v1/alerts/:id/handle` | 报警查询 / 处理 |
 | GET / PATCH | `/api/v1/devices`、`/api/v1/devices/:id/toggle` | 设备查询 / 开关 |
 | POST | `/api/v1/schedules` | 创建设备定时任务 |

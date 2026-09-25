@@ -14,8 +14,10 @@ func New(code int, message string, status int) *BusinessError {
 }
 
 var (
-	ErrNotFound     = New(40401, "资源不存在", http.StatusNotFound)
-	ErrValidation   = New(40001, "请求参数不合法", http.StatusBadRequest)
-	ErrUnauthorized = New(40101, "认证失败", http.StatusUnauthorized)
-	ErrInternal     = New(50001, "服务器内部错误", http.StatusInternalServerError)
+	ErrNotFound       = New(40401, "资源不存在", http.StatusNotFound)
+	ErrSensorNotFound = New(40402, "传感器不存在", http.StatusNotFound)
+	ErrValidation     = New(40001, "请求参数不合法", http.StatusBadRequest)
+	ErrUnauthorized   = New(40101, "认证失败", http.StatusUnauthorized)
+	ErrForbidden      = New(40301, "没有权限执行此操作，需要管理员角色", http.StatusForbidden)
+	ErrInternal       = New(50001, "服务器内部错误", http.StatusInternalServerError)
 )

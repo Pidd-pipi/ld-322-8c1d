@@ -12,3 +12,24 @@ paths:
     post: {summary: Ingest a sensor reading, responses: {'201': {description: Created}}}
   /api/v1/alerts:
     get: {summary: List alerts, responses: {'200': {description: OK}}}
+  /api/v1/sensors/{id}/calibration:
+    put:
+      summary: Save sensor calibration offset (admin only)
+      description: 保存后最新读数、历史趋势、阈值报警与环境报告均采用校准值；原始读数保留，偏移为 0 时恢复原值。
+      parameters:
+        - {name: id, in: path, required: true, schema: {type: integer}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [offset]
+              properties:
+                offset: {type: number, example: -1.5}
+      responses:
+        '200': {description: Calibration saved}
+        '400': {description: Offset outside the allowed range for the sensor type}
+        '401': {description: Not authenticated}
+        '403': {description: Not an administrator}
+        '404': {description: Sensor not found}

@@ -29,3 +29,22 @@ func (h *SensorHandler) Create(c *gin.Context) {
 	}
 	Created(c, sensor)
 }
+
+// UpdateCalibration 保存传感器校准偏移；无权限、超范围或传感器不存在时返回具体原因。
+func (h *SensorHandler) UpdateCalibration(c *gin.Context) {
+	id, ok := parseID(c)
+	if !ok {
+		return
+	}
+	var req dto.CalibrationRequest
+	if err := c.ShouldBindJSON(&req); err != nil || h.validator.Struct(req) != nil {
+		Fail(c, apperrors.ErrValidation)
+		return
+	}
+	sensor, err := h.service.UpdateCalibration(id, *req.Offset)
+	if err != nil {
+		Fail(c, err)
+		return
+	}
+	Success(c, sensor)
+}

@@ -52,6 +52,7 @@ func New(d Dependencies) *gin.Engine {
 	secured.POST("/readings", monitoring.Ingest)
 	secured.POST("/greenhouses/:id/simulate", monitoring.Simulate)
 	secured.PUT("/sensors/:id/threshold", monitoring.Threshold)
+	secured.PUT("/sensors/:id/calibration", middleware.RequireRole(constants.RoleAdmin), sensors.UpdateCalibration)
 	secured.PATCH("/alerts/:id/handle", alerts.Handle)
 	secured.PATCH("/devices/:id/toggle", devices.Toggle)
 	secured.POST("/schedules", devices.Schedule)

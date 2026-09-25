@@ -41,6 +41,18 @@ func (r *SensorRepository) AddReading(reading *model.SensorReading) error {
 	}
 	return nil
 }
+
+// UpdateCalibrationOffset 以单条 UPDATE 原子写入校准偏移；失败时数据库中的原值不受影响。
+func (r *SensorRepository) UpdateCalibrationOffset(id uint, offset float64) error {
+	result := r.db.Model(&model.Sensor{}).Where("id = ?", id).Update("calibration_offset", offset)
+	if result.Error != nil {
+		return fmt.Errorf("update calibration offset: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return apperrors.ErrRecordNotFound
+	}
+	return nil
+}
 func (r *SensorRepository) UpdateThreshold(id uint, min, max float64) (*model.Threshold, error) {
 	var t model.Threshold
 	err := r.db.Where("sensor_id = ?", id).First(&t).Error

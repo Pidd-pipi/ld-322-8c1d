@@ -24,6 +24,11 @@ type ThresholdRequest struct {
 	MinValue float64 `json:"minValue"`
 	MaxValue float64 `json:"maxValue" validate:"gt=0"`
 }
+
+// CalibrationRequest 校准偏移请求；Offset 使用指针，确保显式传 0（恢复原始值）也能通过必填校验。
+type CalibrationRequest struct {
+	Offset *float64 `json:"offset" validate:"required"`
+}
 type DeviceToggleRequest struct {
 	Status string `json:"status" validate:"required,oneof=on off"`
 }

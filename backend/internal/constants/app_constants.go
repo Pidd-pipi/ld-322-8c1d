@@ -12,8 +12,9 @@ const (
 	StatusOn        = "on"
 	AlertPending    = "pending"
 	AlertHandled    = "handled"
-	RoleAdmin       = "admin"
-	SuccessMessage  = "ok"
-	EventAlert      = "alert.created"
-	EventDevice     = "device.updated"
+	RoleAdmin        = "admin"
+	SuccessMessage   = "ok"
+	EventAlert       = "alert.created"
+	EventDevice      = "device.updated"
+	ContextKeyClaims = "auth_claims"
 )

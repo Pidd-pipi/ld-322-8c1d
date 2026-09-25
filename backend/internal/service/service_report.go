@@ -33,6 +33,7 @@ func (s *ReportService) Generate(id uint, rangeName string, start, end time.Time
 	if err != nil {
 		return nil, fmt.Errorf("report history: %w", err)
 	}
+	CalibrateReadings(rows)
 	report := &Report{GreenhouseID: id, Range: rangeName, GeneratedAt: time.Now(), Metrics: map[string]Metric{}}
 	sums := map[string]float64{}
 	counts := map[string]int{}
